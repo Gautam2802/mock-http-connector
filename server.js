@@ -18,14 +18,27 @@ app.get('/users', (req, res) => {
     res.json(users);
 });
 
+
 app.post('/user/create', (req, res) => {
-    const user = req.body;
-    if (users.find(u => u.userId === user.userId)) {
-        return res.status(400).json({ message: "User already exists" });
-    }
-    users.push({ ...user, roles: [] });
-    res.json({ message: "User created successfully", user });
+  const { userId, password, role, notes } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  const user = {
+    userId,
+    password,
+    role,
+    notes,
+    createdAt: new Date()
+  };
+
+  users.push(user);
+
+  res.json({ message: 'User created successfully', user });
 });
+
 
 app.post('/user/:userId/roles', (req, res) => {
     const { userId } = req.params;
