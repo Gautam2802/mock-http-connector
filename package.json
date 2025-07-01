@@ -1,0 +1,12 @@
+{
+  "name": "mock-http-connector",
+  "version": "1.0.0",
+  "description": "Mock HTTP connector for Pathlock testing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
