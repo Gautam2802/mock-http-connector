@@ -35,28 +35,22 @@ app.post('/user/create', (req, res) => {
 });
 
 app.get('/userroles', (req, res) => {
-  const roleAssignments = [];
-
-  users.forEach(user => {
-    user.roles.forEach(role => {
-      roleAssignments.push({
-        Code: `${user.userId}-${role}`,
-        Description: `Role ${role} assigned to ${user.userId}`,
-        Identifier: `RID-${user.userId}-${role}`,
-        UserName: user.userId,
-        RoleName: role,
-        IsChildRole: role.startsWith("CR") ? true : false,
-        AssignDate: "2025-07-01 10:00:00",
-        UntilDate: "2025-12-31 23:59:59",
-        AssignmentBy: "admin@company.com",
-        RoleAttributes: "READ_ONLY",
-        RoleAttributesJson: JSON.stringify({ access: "read", level: "low" })
-      });
+    const userRoles = users.flatMap(user => {
+        return user.roles.map(role => ({
+            UserName: user.userId,
+            RoleName: role,
+            IsChildRole: false, // you can change this based on your logic
+            AssignDate: "2024-01-01", // placeholder
+            UntilDate: "2025-01-01", // placeholder
+            AssignmentBy: "admin",
+            RoleAttributes: [],
+            RoleAttributesJson: "{}"
+        }));
     });
-  });
 
-  res.json(roleAssignments);
+    res.json(userRoles);
 });
+
 
 
 
