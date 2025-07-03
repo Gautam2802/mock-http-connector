@@ -24,7 +24,7 @@ app.post('/user/create', (req, res) => {
   const user = {
     userId,
     password,
-    roles,
+    role,
     notes,
     createdAt: new Date()
   };
