@@ -34,23 +34,30 @@ app.post('/user/create', (req, res) => {
   res.json({ message: 'User created successfully', user });
 });
 
-app.get('/users/:userId/roles', (req, res) => {
-  const { userId } = req.params;
-  const user = users.find(u => u.userId === userId);
+app.get('/userroles', (req, res) => {
+  const roleAssignments = [];
 
-  if (!user) return res.status(404).json({ message: "User not found" });
+  users.forEach(user => {
+    user.roles.forEach(role => {
+      roleAssignments.push({
+        Code: `${user.userId}-${role}`,
+        Description: `Role ${role} assigned to ${user.userId}`,
+        Identifier: `RID-${user.userId}-${role}`,
+        UserName: user.userId,
+        RoleName: role,
+        IsChildRole: role.startsWith("CR") ? true : false,
+        AssignDate: "2025-07-01 10:00:00",
+        UntilDate: "2025-12-31 23:59:59",
+        AssignmentBy: "admin@company.com",
+        RoleAttributes: "READ_ONLY",
+        RoleAttributesJson: JSON.stringify({ access: "read", level: "low" })
+      });
+    });
+  });
 
-  const rolesData = user.roles.map(role => ({
-    TransactionId: `TID-${userId}-${role}`,
-    UserName: user.userId,
-    RoleName: role,
-    Activity: "AttachRole",
-    AssignDate: "2025-07-01 10:15:00",
-    AssignmentBy: "admin@company.com"
-  }));
-
-  res.json(rolesData);
+  res.json(roleAssignments);
 });
+
 
 
 app.post('/user/:userId/roles', (req, res) => {
