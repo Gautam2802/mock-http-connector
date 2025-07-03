@@ -75,6 +75,27 @@ res.json(formattedRoles);
 
 });
 
+// Lock user
+app.post('/user/:userId/lock', (req, res) => {
+    const { userId } = req.params;
+    const user = users.find(u => u.userId === userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.isLocked = true;
+    res.status(200).json({ message: `User ${userId} locked.` });
+});
+
+// Unlock user
+app.post('/user/:userId/unlock', (req, res) => {
+    const { userId } = req.params;
+    const user = users.find(u => u.userId === userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.isLocked = false;
+    res.status(200).json({ message: `User ${userId} unlocked.` });
+});
 
 
 app.listen(port, () => {
