@@ -66,7 +66,13 @@ app.get('/user/:userId/roles', (req, res) => {
     // If roles are not defined, return empty array
     const userRoles = Array.isArray(user.roles) ? user.roles : [];
 
-    res.json({ userId, roles: userRoles });
+    const formattedRoles = userRoles.map(role => ({
+    userId,
+    roleName: role
+}));
+
+res.json(formattedRoles);
+
 });
 
 
