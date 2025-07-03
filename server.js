@@ -26,6 +26,7 @@ app.post('/user/create', (req, res) => {
     password,
     role,
     notes,
+    roles:[],
     createdAt: new Date()
   };
 
@@ -43,10 +44,31 @@ app.post('/user/:userId/roles', (req, res) => {
 
     if (!roles.includes(role)) return res.status(400).json({ message: "Invalid role" });
 
-    if (!user.roles.includes(role)) user.roles.push(role);
+    // ✅ Initialize roles array if not present
+    if (!Array.isArray(user.roles)) {
+        user.roles = [];
+    }
+
+    // ✅ Prevent duplicate role assignment
+    if (!user.roles.includes(role)) {
+        user.roles.push(role);
+    }
 
     res.json({ message: "Role assigned", user });
 });
+
+app.get('/user/:userId/roles', (req, res) => {
+    const { userId } = req.params;
+
+    const user = users.find(u => u.userId === userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // If roles are not defined, return empty array
+    const userRoles = Array.isArray(user.roles) ? user.roles : [];
+
+    res.json({ userId, roles: userRoles });
+});
+
 
 
 app.listen(port, () => {
