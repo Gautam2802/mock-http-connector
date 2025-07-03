@@ -24,7 +24,7 @@ app.post('/user/create', (req, res) => {
   const user = {
     userId,
     password,
-    role,
+    roles,
     notes,
     createdAt: new Date()
   };
@@ -33,16 +33,6 @@ app.post('/user/create', (req, res) => {
 
   res.json({ message: 'User created successfully', user });
 });
-
-app.get('/userroles', (req, res) => {
-  const { username } = req.query; // this matches Pathlock XML
-
-  const user = users.find(u => u.userId === username); // userId still in data
-  if (!user) return res.status(404).json({ message: 'User not found' });
-
-  res.json({ roles: user.roles });
-});
-
 
 app.post('/user/:userId/roles', (req, res) => {
     const { userId } = req.params;
@@ -57,6 +47,7 @@ app.post('/user/:userId/roles', (req, res) => {
 
     res.json({ message: "Role assigned", user });
 });
+
 
 app.listen(port, () => {
     console.log(`Mock HTTP connector running at http://localhost:${port}`);
