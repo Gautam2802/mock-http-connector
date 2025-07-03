@@ -35,23 +35,13 @@ app.post('/user/create', (req, res) => {
 });
 
 app.get('/userroles', (req, res) => {
-    const userRoles = users.flatMap(user => {
-        return user.roles.map(role => ({
-            UserName: user.userId,
-            RoleName: role,
-            IsChildRole: false, // you can change this based on your logic
-            AssignDate: "2024-01-01", // placeholder
-            UntilDate: "2025-01-01", // placeholder
-            AssignmentBy: "admin",
-            RoleAttributes: [],
-            RoleAttributesJson: "{}"
-        }));
-    });
+  const { username } = req.query; // this matches Pathlock XML
 
-    res.json(userRoles);
+  const user = users.find(u => u.userId === username); // userId still in data
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  res.json({ roles: user.roles });
 });
-
-
 
 
 app.post('/user/:userId/roles', (req, res) => {
