@@ -7,12 +7,7 @@ app.use(express.json());
 let users = [];
 let roles = ['admin', 'hr_manager', 'viewer'];
 
-app.get('/metadata', (req, res) => {
-    res.json({
-        fields: ['userId', 'name', 'email', 'roles'],
-        operations: ['createUser', 'getUsers', 'assignRole', 'getMetadata']
-    });
-});
+
 
 app.get('/users', (req, res) => {
     res.json(users);
@@ -37,6 +32,24 @@ app.post('/user/create', (req, res) => {
   users.push(user);
 
   res.json({ message: 'User created successfully', user });
+});
+
+app.get('/users/:userId/roles', (req, res) => {
+  const { userId } = req.params;
+  const user = users.find(u => u.userId === userId);
+
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const rolesData = user.roles.map(role => ({
+    TransactionId: `TID-${userId}-${role}`,
+    UserName: user.userId,
+    RoleName: role,
+    Activity: "AttachRole",
+    AssignDate: "2025-07-01 10:15:00",
+    AssignmentBy: "admin@company.com"
+  }));
+
+  res.json(rolesData);
 });
 
 
