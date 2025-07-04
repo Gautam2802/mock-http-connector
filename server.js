@@ -4,17 +4,57 @@ const port = 3000;
 
 app.use(express.json());
 
-let users = [];
-let roles = ['admin', 'hr_manager', 'viewer'];
+
+let users = [
+  {
+    userId: "Gautam",
+    password: "123456",
+    role: "super_admin",
+    notes: "Default admin user",
+    roles: ["admin"],
+    isLocked: false,
+    createdAt: new Date()
+  }
+];
+let roles = ['super_admin','admin', 'hr_manager', 'viewer'];
 
 
+let currentAccessToken = null;
 
-app.get('/users', (req, res) => {
+// OAuth2 token endpoint
+app.post('/token', (req, res) => {
+    const { username, password } = req.body;
+    const user = users.find(u => u.userId === username && u.password === password);
+
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Always generate a new access token
+    const token = `mock-token-${Date.now()}`;
+    currentAccessToken = token;
+
+    res.json({ access_token: token, token_type: 'bearer', expires_in: 3600 });
+});
+
+// Middleware to check token
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token !== currentAccessToken) {
+        return res.status(401).json({ message: 'Unauthorized or expired token' });
+    }
+
+    next();
+}
+
+app.get('/users', authenticateToken, (req, res) => {
     res.json(users);
 });
 
 
-app.post('/user/create', (req, res) => {
+app.post('/user/create', authenticateToken, (req, res) => {
   const { userId, password, role, notes } = req.body;
 
   if (!userId) {
@@ -35,7 +75,7 @@ app.post('/user/create', (req, res) => {
   res.json({ message: 'User created successfully', user });
 });
 
-app.post('/user/:userId/roles', (req, res) => {
+app.post('/user/:userId/roles', authenticateToken, (req, res) => {
     const { userId } = req.params;
     const { role } = req.body;
 
@@ -57,7 +97,7 @@ app.post('/user/:userId/roles', (req, res) => {
     res.json({ message: "Role assigned", user });
 });
 
-app.get('/user/:userId/roles', (req, res) => {
+app.get('/user/:userId/roles', authenticateToken, (req, res) => {
     const { userId } = req.params;
 
     const user = users.find(u => u.userId === userId);
@@ -76,7 +116,7 @@ res.json(formattedRoles);
 });
 
 // Lock user
-app.post('/user/:userId/lock', (req, res) => {
+app.post('/user/:userId/lock', authenticateToken, (req, res) => {
     const { userId } = req.params;
     const user = users.find(u => u.userId === userId);
 
@@ -87,7 +127,7 @@ app.post('/user/:userId/lock', (req, res) => {
 });
 
 // Unlock user
-app.post('/user/:userId/unlock', (req, res) => {
+app.post('/user/:userId/unlock', authenticateToken, (req, res) => {
     const { userId } = req.params;
     const user = users.find(u => u.userId === userId);
 
